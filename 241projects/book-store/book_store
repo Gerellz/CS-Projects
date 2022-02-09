@@ -1,0 +1,164 @@
+//**********************************
+//
+//  book_store.cpp
+//
+//  CSCI 241 Assignment 5
+//
+//  Written by Gerald Ellsworth (z1885378)
+//
+//**********************************/
+
+#include <iostream>
+#include <iomanip>
+#include <cstring>
+#include <string>
+#include <cstdlib>
+#include <fstream>
+#include "book_store.h"
+
+using namespace std;
+
+//**
+//  reads an input file given by
+//  the user
+//
+//  @param a file: 'bookdata'
+//
+//*********************************
+
+void book_store::read_book_data(const string& bookdata)
+{
+	ifstream in_file;
+
+	in_file.open("bookdata");
+	if (!in_file)
+	{
+		cerr << "Error - Unable to open Input File. " << "bookdata" << endl;
+		exit(1);
+	}
+
+	in_file.read((char*) this, sizeof(book_store));					//reads a binary file
+
+	in_file.close();
+
+	sort_data();									//calls the sort data method to sort the user file.
+}
+
+//**
+//  sorts the data using the
+//  insertion sort method.
+//*******************************
+
+void book_store::sort_data()
+{
+	int i, j;
+	book temp;
+
+	for (i = 1; i < book_data; i++)
+	{
+		for (j = i; j > 0 && strcmp(inventory[j-1].get_isbn(), inventory[j].get_isbn()) > 0; j--)
+		{
+			temp = inventory[j - 1];
+			inventory[j - 1] = inventory[j];
+			inventory[j] = temp;
+		}
+	}
+}
+
+//**
+// opens and reads a file to
+// output the ordered list
+//
+// @param a user file: "orders"
+//
+//*****************************
+
+void book_store::process_orders(const string& orders)
+{
+	ifstream in_file;
+
+	char isbn[11];
+	int order_number, order_quantity;
+
+	in_file.open(orders);
+	if (!in_file)
+	{
+		cerr << "Error - unable to open input file " << orders << endl;
+		exit(1);
+	}
+
+	cout << "Order Listing\n" << endl;
+
+	while (in_file)										//attempts to read all parts of the file into
+	{											//multiple variables to be output.
+		in_file >> order_number;
+		in_file >> isbn;
+		in_file >> order_quantity;
+
+		int search_result = -1;
+		int shipped;
+
+		search_result = binary_search(inventory, 30, isbn);
+		if (search_result > -1)
+		{
+			shipped = inventory[search_result].fulfill_order(order_quantity);
+
+			cout << "Order #" << order_number << ": " << "ISBN " << isbn << ", " << shipped  << " of " << order_quantity << 
+			" shipped, order total " << inventory[search_result].get_price() * shipped << endl;
+		}
+		else
+			cout << "Order #" << order_number << ": " << "Error - ISBN " << isbn << " does not exist" << endl;
+	}
+
+	cout << endl;
+
+	in_file.close();
+}
+
+//**
+//  uses the binary search function
+//  to find the correct isbn number
+//
+//  @param1 the inventory of book objects
+//  @param2 the length of the array
+//  @param3 the search key used to find the isbn
+//
+//  @return returns -1
+//*********************
+
+int book_store::binary_search(book inventory[], int n, const char* search_key)
+{
+	int low = 0;
+	int high = n - 1;
+
+	while (low <= high)
+	{
+		int mid = (low+high) / 2;
+		if (strcmp(search_key, inventory[mid].get_isbn()) == 0)
+			return mid;
+
+		if (strcmp(search_key, inventory[mid].get_isbn()) < 0)
+			high = mid - 1;
+
+		else
+			low = mid + 1;
+	}
+
+	return -1;
+}
+
+//**
+//  prints the list of orders
+//****************************
+
+void book_store::print() const
+{
+	cout << "Book Inventory Listing\n" << endl;
+	cout << left << setw(14) << "ISBN" << setw(44) << "Title" << right << setw(5) << "Price" << setw(8) << "Qty." << "\n" << endl;
+
+	for (int i = 0; i < book_data; i++)
+	{
+		inventory[i].print();
+	}
+	cout << endl;
+}
