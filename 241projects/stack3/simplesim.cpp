@@ -1,0 +1,282 @@
+//***************************************
+//
+// simplesim.cpp
+//
+// CSCI 241 Assignment 4
+//
+// Created by Gerald Ellsworth (z1885378)
+//
+//***************************************
+
+#include <iostream>
+#include <iomanip>
+#include "sml.h"
+#include "simplesim.h"
+
+using namespace std;
+
+simplesim::simplesim()
+{
+        for (int i = 0; i < 100; i++)
+                memory[i] = 7777;                                                       //initializes the array and sets all values to 7777
+}
+
+//**
+//Takes an input of values from a user and loads them into the array.
+//
+//@return returns either true or false to continue the program until halt
+//        or end the program and proceed directly to the dump method.
+//
+//************************************************************************
+
+bool simplesim::load_program()
+{
+        int word;
+        int count = 0;
+
+        cin >> word;                                                                            //takes a list of values from a user
+        while (word != -99999)                                                                  //if none of the values are -99999 we proceed
+        {
+                if (word <= -9999)                                                              //if any of the values are less than -9999 or
+                {                                                                               //greater than 9999, we return false and move
+                        cout << "*** ABEND: pgm load: invalid word ***" << endl << endl;        //to the dump immediately.
+                        return false;
+                }
+                if (word >= 9999)
+                {
+                        cout << "*** ABEND: pgm load: invalid word ***" << endl << endl;
+                        return false;
+                }
+                if (count >= 100)                                                               //if there are more than 100 values, we return false
+                {                                                                               //and move to the dump immediately.
+                        cout << "*** ABEND: pgm load: pgm too large ***" << endl << endl;
+                        return false;
+                }
+                memory[count] = word;                                                           //set the value in each memory location to the value
+                                                                                                //of each input and increment to the next memory
+                count++;                                                                        //location and repeat until full.
+
+                cin >> word;
+        }
+        return true;
+}
+
+//**
+//Executes the SML program by directing to a proper switch statement
+//
+//*************************************
+
+void simplesim::execute_program()
+{
+        int word;
+        int temp;                                                               //temporary variable to hold accumulator values before placing them.
+        bool done = false;
+        while (!done)
+        {
+                if (instruction_counter >= 0 && instruction_counter <= 99)      //this tests the instruction counter to check if we can place more
+                {                                                               //values in or if there is a problem with placing them in memory.
+                        instruction_register = memory[instruction_counter];
+                        operation_code = instruction_register / 100;
+                        operand = instruction_register % 100;
+                }
+
+                else                                                            //if it fails, we end the program immediately.
+                {
+                        cout << "*** ABEND: addressability error ***\n" << endl;
+                        done = true;
+                }
+
+                switch (operation_code)
+                {
+                        case READ:                                                              //this switch statement takes the values input by the user
+                                cin >> word;
+
+                                if (word >= -9999 && word <= 9999)
+                                memory[operand] = word;
+
+                                if (word > 9999)                                                //if a value does not fit, end the program immediately
+                                {
+                                        cout << "*** ABEND: illegal input ***\n" << endl;
+                                        done = true;
+                                }
+                                else if (word < -9999)
+                                {
+                                        cout << "*** ABEND: illegal input ***\n" << endl;
+                                        done = true;
+                                }
+                                else
+                                        cout << "READ: " << showpos << setw(5) << setfill('0') << internal << memory[operand] << endl;
+                        break;
+
+                        case WRITE:                                                             //this switch statement prints the memory location of operand
+                                cout << setw(5) << memory[operand] << endl;
+                        break;
+
+                        case LOAD:
+                                accumulator = memory[operand];                                  //sets the accumulator to be the value in the memory
+                        break;                                                                  //location of operand.
+
+                        case STORE:                                                             //sets the memory location of operand to the value of
+                                memory[operand] = accumulator;                                  //the accumulator.
+                        break;
+
+                        case ADD:                                                               //this switch statement performs simple addition
+                                                                                                //if the value in the accumulator BEFORE the addition
+                                if (accumulator >= -9999 && accumulator <= 9999)                //is between the values of -9999 and 9999.
+                                {
+                                        temp = accumulator + memory[operand];
+                                }
+
+                                if (accumulator > 9999)                                         //if the value is not viable, we end the program immediately.
+                                {
+                                        cout << "*** ABEND: overflow ***\n" << endl;
+                                        done = true;
+                                }
+
+                                else if (accumulator < -9999)
+                                {
+                                        cout << "*** ABEND: underflow ***\n" << endl;
+                                        done = true;
+                                }
+                                else
+                                        accumulator = temp;
+                        break;
+
+                        case SUBTRACT:                                                          //same as the addition switch but with subtraction.
+                                temp = accumulator - memory[operand];                           //accumulator must always be the value subtracted from.
+
+                                if (accumulator > 9999)
+                                {
+                                        cout << "*** ABEND: overflow ***\n" << endl;
+                                        done = true;
+                                }
+                                else if (accumulator < -9999)
+                                {
+                                        cout << "*** ABEND: underflow ***\n" << endl;
+                                        done = true;
+                                }
+                                else
+                                        accumulator = temp;
+                        break;
+
+                        case MULTIPLY:                                                          //same as addition and subtraction switches
+                                temp = accumulator * memory[operand];
+
+                                if (accumulator > 9999)
+                                {
+                                        cout << "*** ABEND: overflow ***\n" << endl;
+                                        done = true;
+                                }
+                                else if (accumulator < -9999)
+                                {
+                                        cout << "*** ABEND: underflow ***\n" << endl;
+                                        done = true;
+                                }
+                                else
+                                        accumulator = temp;
+                        break;
+
+                        case DIVIDE:                                                            //performs simple division
+                                if (memory[operand] != 0)                                       //must make sure the denominator is not 0, otherwise
+                                        accumulator = accumulator / memory[operand];            //end the program immediately.
+                                else
+                                {
+                                        cout << "*** ABEND: attempted division by 0 ***\n" << endl;
+                                        done = true;
+                                }
+                        break;
+
+                        case BRANCH:                                                            //sets the instruction counter to the value of the operand
+                                instruction_counter = operand;
+                        break;
+
+                        case BRANCHNEG:                                                         //sets the instruction counter to the value of the operand
+                                if (accumulator < 0)                                            //if the accumulator value is less than 0
+                                        instruction_counter = operand;
+                        break;
+
+                        case BRANCHZERO:                                                        //sets the instruction counter to the value of the operand
+                                if (accumulator == 0)                                           //if the accumulator value is 0
+                                        instruction_counter = operand;
+                        break;
+
+                        case HALT:                                                              //ends the program and proceeds to dump
+                                cout << "*** Simplesim execution terminated ***\n" << endl;
+                                done = true;
+                        break;
+
+                        default:                                                                //if none of the switch statements are called
+                                cout << "*** ABEND: invalid opcode ***\n" << endl;              //end the program immediately.
+                                done = true;
+                }
+
+                if (operation_code !=BRANCH && operation_code !=BRANCHNEG && operation_code != BRANCHZERO && !done)     //increment the instruction counter
+                        instruction_counter++;                                                                          //to move to the next location
+        }                                                                                                               //in memory.
+}
+
+//**
+//Takes the information gathered from the execute and prints it to the user.
+//
+//@note I could not for the life of me get the memory lines to print without
+//      adding a single space to it. It drove me crazy, I need to know the answer!
+//
+//********************************************************************************
+
+void simplesim::dump() const
+{
+        //For many of these lines, I alternated between formatting properties. Setfill and Showpos were manipulated to print a proper output.
+        cout << left << "REGISTERS:" << endl;
+
+        cout << setfill(' ');
+
+        cout << showpos;
+
+        cout << left << setw(24) << "accumulator: " << right << setfill('0') << internal << setw(5) << accumulator << endl;
+
+        cout << noshowpos;
+
+        cout << left << setfill(' ') << setw(24) << "instruction_counter: " << right << setfill('0') << setw(2) << instruction_counter << endl;
+
+        cout << showpos;
+
+        cout << left << setfill(' ') << setw(24) << "instruction_register: " << right << setfill ('0') << internal << setw(5) << instruction_register << endl;
+
+        cout << noshowpos;
+
+        cout << left << setfill(' ') << setw(24) << "operation_code: " << right << setfill ('0') << setw(2) << operation_code << endl;
+
+        cout << left << setfill(' ') << setw(24) << "operand: " << right << setfill ('0') << setw(2) << operand << endl;
+
+        cout << endl;
+
+        cout << setfill(' ');
+
+        cout << "MEMORY:" << endl;
+
+        cout << setw(8) << right << 0;                          //I added this line to add blank space before the counter line above the memory array.
+
+        for (int k = 1; k < 10; k+=1)                           //for loop that prints the counter line above the array starting at 1.
+        {
+                cout << right << setw(6) << k;
+        }
+        cout << endl;
+
+        bool start_of_row = true;                               //created a boolean to check if there is a new row starting. If there is, it places the
+                                                                //value of i to mark the new row.
+        for (int i = 0; i < 100; i++)
+        {
+                if (start_of_row == true)
+                {
+                        cout << setw(2) << right << noshowpos << setfill(' ') << i << " ";              //I have no idea how to format this without
+                        start_of_row = false;                                                           //adding a single space.
+                }
+
+                cout << right << setw(5) << internal << showpos << setfill('0') << memory[i] << " ";    //Same as above, I have no idea how to print
+                        if ((i + 1) % 10 == 0)                                                          //the values without adding a single space
+                        {                                                                               //to make them look clean.
+                                cout << endl;
+                                start_of_row = true;
+                        }
+        }
+}
