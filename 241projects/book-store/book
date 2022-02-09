@@ -1,0 +1,79 @@
+//****************************************
+//
+//  book.cpp
+//
+//  Assignment 5 CSCI 241
+//
+//  Written by Gerald Ellsworth (z1885378)
+//
+//****************************************/
+
+#include <iostream>
+#include <iomanip>
+#include "book.h"
+
+using namespace std;
+
+//**
+//  gets the isbn number when called
+//
+//  @return returns the isbn number
+//
+//******************************
+
+const char* book::get_isbn() const
+{
+	return isbn;
+}
+
+//**
+//  gets the price associated with
+//  the book
+//
+//  @return returns the price of the book
+//****************************************
+
+double book::get_price()
+{
+	return price;
+}
+
+//**
+//  attempts to fulfill the order requested
+//  by the user
+//
+//  @param the amount ordered by the user
+//
+//  @return the amount of books that are shipped
+//*************************************
+
+int book::fulfill_order(int ordered)
+{
+	int shipped = 0;
+
+	if (ordered < 0)
+		shipped = 0;
+	if (ordered <= stock)
+	{
+		shipped = ordered;
+		stock = stock - ordered;
+	}
+	else
+	{
+		shipped = stock;
+		stock = 0;
+	}
+	return shipped;
+}
+
+//**
+//  prints the books list of books
+//  their isbn, their price, and
+//  the amount in stock.
+//
+//********************************
+
+void book::print() const
+{
+	cout << left << setw(14) << isbn << setw(44) << title << right << fixed << setprecision(2) << setw(5) << price << setw(6) << stock << endl;
+}
