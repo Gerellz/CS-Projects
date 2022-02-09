@@ -1,0 +1,137 @@
+//***********************************************************
+//
+//  quick_sort.cpp
+//  CSCI 241 Assignment 3
+//
+//  Created by Gerald Ellsworth (z1885378)
+//
+//***********************************************************
+
+#include <iostream>
+#include <iomanip>
+
+using namespace std;
+
+void quick_sort(int[], int, int);
+int partition(int[], int, int);
+int build_array(int[]);
+void print_array(int[], int);
+
+#define NUM_WIDTH 8
+#define NUM_PER_LINE 8
+
+int main()
+{
+	int array[1000];
+	int count;
+
+	count = build_array(array);						//builds the array based on the user input or text file given
+	quick_sort(array, 0, count);						//calls the quick_sort function listing all elements from 0 to the end of the array
+	print_array(array, count);						//prints the array after being sorted.
+
+	return 0;
+}
+
+//**
+//Builds the array based on user input
+//
+//@param array[]: uses the empty array as a base to be filled with the user input.
+//
+//@return: returns the input file given by the user.
+//*********************************************************************************
+
+int build_array(int array[])
+{
+	int count = 0;								//starts at the beginning of the array
+
+	while (cin >> array[count])						//loops through the array given by the user
+	{
+		count++;
+	}
+	return count;
+}
+
+//**
+//Sorts the array using the quick sort method.
+//
+//This function sorts the first half of the array and then the second half of the
+//array using the quick sort method. It calls itself recursively to run through
+//the entire list until everything is sorted completely in order.
+//
+//@param array[]: uses the array given by the user
+//@param start: the start of the array, generally at array[0].
+//@param end: the end point of the array as denoted by the user input.
+//*********************************************************************************
+
+void quick_sort(int array[], int start, int end)
+{
+	int pivotPoint;
+
+	if (start < end)							//starts the quick sort at the start of the beginning of the array until the value at end - 1.
+	{
+		pivotPoint = partition(array, start, end);			//sets the pivot point as the partiton return value.
+		quick_sort(array, start, pivotPoint - 1);			//sorts the first half of the array.
+		quick_sort(array, pivotPoint + 1, end);				//sorts the second half of the array.
+	}
+}
+
+//**
+//Partitions the array so it can sort halves based on where the partition starts.
+//
+//This function finds a point in the array to split the total array in half and
+//sorts the values putting smaller values on the left side of the pivot value
+//and larger values on the right side of the pivot value. It swaps the first
+//value with the middle value and then checks every number after that and places
+//it in its correct position.
+//
+//@param array[]: uses the array given by the user.
+//@param start: the start of the array, generally at array[0].
+//@param end: the end point of the array as denoted by the user input.
+//
+//@return: returns the pivotIndex value when the scan completes so it can be set
+//as the pivot value.
+//*********************************************************************************
+
+int partition(int array[], int start, int end)
+{
+	int pivotValue, pivotIndex, mid;
+
+	mid = (start + end) /2;							//sets the value of mid to be the middle of the array.
+	swap(array[start], array[mid]);						//swaps the first value and the middle value.
+	pivotIndex = start;
+	pivotValue = array[start];
+
+	for (int scan = start + 1; scan <= end; scan++)				//loops through the array checking all numbers and comparing it to the starting value
+	{
+		if (array[scan] < pivotValue)
+		{
+			pivotIndex++;
+			swap(array[pivotIndex], array[scan]);			//swaps the scanned value and the index value if the scan value is smaller than the pivot value
+		}
+	}
+	swap(array[start], array[pivotIndex]);					//swaps the start value and the pivot index back to their original positions
+	return pivotIndex;							//returns the pivot index to be used in the quick sort function.
+}
+
+//**
+//Prints the given array values with proper spacing.
+//
+//@param array[]: uses the array given by the user.
+//@param count: runs through the array until it is complete to print all values
+//*******************************************************************************
+
+void print_array(int array[], int count)
+{
+	int i;
+
+	for (i = 0; i < count; i++)						//loops through each value of the array until it reaches the end
+	{
+		cout << setw(NUM_WIDTH) << array[i];				//sets a width of 8 spaces between each printed value.
+
+		if ((i+1) % NUM_PER_LINE == 0)					//sets the number of values per line to 8
+			cout << endl;
+	}
+
+	if (i % NUM_PER_LINE != 0)						//makes sure the last line ends even if there are not 8 values to be printed.
+		cout << endl;
+}
