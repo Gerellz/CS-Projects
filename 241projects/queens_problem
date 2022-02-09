@@ -1,0 +1,120 @@
+//**********************************************
+//
+//  queens.cpp
+//  CSCI 241 Assignment 2
+//
+//  Created by Gerald Ellsworth (z1885378)
+//
+//**********************************************
+
+#include <iostream>
+
+using namespace std;
+
+bool place_queens(bool[8][8], int);
+bool is_safe(bool[8][8], int, int);
+void print_solution(bool[8][8]);
+
+int main()
+{
+	bool board[8][8] = {false};							//multidimensional array that creates the chessboard starting with every value at 0.
+
+	if (place_queens(board, 0) == true)
+	{
+		print_solution(board);
+		return true;
+	}
+	else
+	{
+		cout << "Error: No Solution Found.";
+		return false;
+	}
+}
+
+//**
+//* Places queens on the chessboard.
+//*
+//* This function attempts to place a queen on every column in every row
+//* starting at the top left and moving across horizontally. It calls a
+//* second function is_safe to make sure a queen can be placed, and if it cannot
+//* it clears the queen from the board.
+//******************************************************************************
+
+bool place_queens(bool board[8][8], int row)
+{
+	if (row >= 8)									//If all queens are placed, return true. This ends the recursive function.
+	{
+		return true;
+	}
+	for (int col = 0; col < 8; col++)						//loops through all the columns to and calls the is_safe function to place a queen.
+	{
+		if (is_safe(board, row, col))
+		{
+			board[row][col] = true;
+
+			if (place_queens(board, row + 1))				//This is the function called recursively to continually loop through and check the
+			{
+				return true;						//is_safe function to determine whether a queen can be placed. If it can, it places
+			}
+			else								//a queen. If it cannot, it keeps checking. If it cannot find one in the row, it
+			{
+				board[row][col] = 0;					//clears the queen from the previous row and repeats.
+			}
+		}
+	}
+	return false;
+}
+
+//**
+//* Function that checks if the queen can be placed on a square.
+//*
+//* This function cycles through three different for loops to check if a queen
+//* can be placed by checking if the column has any true boolean values, if
+//* the left diagonal has any true boolean values and if the right diagonal
+//* has any true boolean values. If none are found, it allows the place_queens
+//* function to set that array index to 1.
+//******************************************************************************
+
+bool is_safe(bool board[8][8], int row, int col)
+{
+	int r, c;									//integers to represent the rows and columns
+
+	for (r = 0; r < row; r++)							//This for loop checks vertically for a queen. If it finds one, it does not allow
+	{
+		if (board[r][col])							//a queen to be placed in the position being checked.
+		{
+			return false;
+		}
+	}
+	for (r = row, c = col; r >= 0 && c >= 0; r--, c--)				//This loop checks the left diagonal for a queen. If it finds one, it does not allow
+	{
+		if (board[r][c])							//a queen to be placed in the position being checked. It decrements the value of index
+		{
+			return false;							//at the row and the column to check upwards and to the left.
+		}
+	}
+	for (r = row, c = col; r >= 0 && c < 8; r--, c++)				//This loop checks the right diagonal for a queen. If it finds one, it does not allow
+	{
+		if (board[r][c])							//a queen to be placed in the position being checked. It both decrements and increments
+		{
+			return false;							//at the row and the column respectively to check upwards and to the right.
+		}
+	}
+	return true;
+}
+
+//**
+//* Function that prints the array of rows and columns.
+//******************************************************
+
+void print_solution(bool board[8][8])
+{
+	for(int row = 0; row < 8; row++)
+	{
+		for (int col = 0; col < 8; col++)
+		{
+			cout << board[row][col] << " ";
+		}
+		cout << endl;
+	}
+}
