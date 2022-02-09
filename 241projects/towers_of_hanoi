@@ -1,0 +1,66 @@
+//**********************************************
+//
+//  hanoi.cpp
+//  CSCI 241 Assignment 2
+//
+//  Created by Gerald Ellsworth (z1885378)
+//
+//**********************************************
+
+#include <iostream>
+#include <iomanip>
+#include <string>
+#include <cctype>
+#include <cstdlib>
+
+using namespace std;
+
+void hanoiDiscs(int, int, int, int);
+
+int main(int argc, char* argv[])
+{
+	const int pegOne = 1;
+	const int pegTwo = 2;
+	const int pegThree = 3;
+	int discs;
+
+	if (argc == 1)											//if statement that lets the user know that they did not input a value for the hanoi discs function
+	{
+		cout<<"Missing Argument\n"<<"Usage: Hanoi number of discs\n";
+		exit(1);
+	}
+
+	for (int i = 0; argv[1][i] != '\0'; i++)							//loops through the command given by the user to start the program to check if it will start the program
+	{
+		if (!isdigit(argv[1][i]))								//if the value given by the user doesn't have a value that the hanoi program can run, it exits the user.
+		{
+			cout<<"Argument must be a number!\n"<<"Usage: Hanoi number of discs\n";
+			exit(1);
+		}
+	}
+
+	discs = stoi(argv[1]);										//converts the string to an integer.
+
+	hanoiDiscs(discs, pegOne, pegTwo, pegThree);							//this calls the function hanoiDiscs to move the discs from peg one to peg two with peg three as a temporary
+}													//holding peg.
+
+//**
+//* Recursive function that moves discs over from peg one to peg two
+//* using peg three as a temporary holding peg.
+//
+//* This function loops recursively a number of times based on the
+//* input value of discs given by the user. It loops a number of times
+//* printing the changes each time it moves a disc.
+//**********************************************************************
+
+void hanoiDiscs(int discs, int pegOne, int pegTwo, int pegThree)
+{
+	if (discs > 0)											//if this disc available are greater than zero, the recursive function begins.
+	{
+		hanoiDiscs(discs - 1, pegOne, pegThree, pegTwo);					//Recursively calls the function to continue looping an amount of times
+													//based on how many discs the user inputted. This will continue until all discs
+		cout << discs << fixed << setw(2) << pegOne << "->" << pegTwo << endl;			//are considered "moved" and we are left with 0 discs left. It will print this to
+													//the user.
+		hanoiDiscs(discs - 1, pegThree, pegTwo, pegOne);
+	}
+}
