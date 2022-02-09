@@ -1,0 +1,98 @@
+//********************************************
+//
+//	selection_sort.cpp
+//	CSCI 241 Assignment 1
+//
+//	Created by Gerald Ellsworth (z1885378)
+//
+//********************************************
+
+#include <iostream>
+#include <iomanip>
+
+using namespace std;
+
+#define NUM_PER_LINE 8
+#define NUM_WIDTH 8
+
+int build_array(int[]);
+void sort_array(int[], int);
+void print_array(int[], int);
+
+int main()
+{
+	int array[1000];
+	int count;
+
+	count = build_array(array);
+
+	sort_array(array, count);
+
+	print_array(array, count);
+
+	return 0;
+}
+
+//*
+// Builds an array of integers from a list given by a user.
+//*********************************************************
+
+int build_array(int array[])
+{
+	int count = 0;
+
+	while (cin >> array[count])				//while loop that takes the given value from the txt file and puts it into an array
+	{
+		count++;
+	}
+
+	return count;
+}
+
+//*
+//Sorts the array using the selection sort method.
+//
+//Loops through the given list to find the smallest element
+//and places it at the beginning of the array table. 
+//**********************************************************
+
+void sort_array(int array[], int n)
+{
+	int min_index;
+	int temp;
+
+	for (int i = 0; i < n - 1; i++)				//small loop that increments i to move through the array sorting values.
+	{
+		min_index = i;
+
+		for (int j = i + 1; j < n; j++)
+		{
+			if (array[j] <  array[min_index])	//set min_index to the variable j if the value in position j is less than the value in position min_index
+				min_index = j;
+		}
+
+		temp = array[i];				//these three lines
+		array[i] = array[min_index];			//are the longer version
+		array[min_index] = temp;			//of the swap command
+	}
+}
+
+//*
+//Prints the newly sorted array to the user in a neat fashion.
+//************************************************************
+
+void print_array(int array[], int count)
+{
+	int i;
+
+	for (i = 0; i < count; i++)
+	{
+		cout << setw(NUM_WIDTH) << array[i];		//sets the number of spaces between integers in the printed list.
+
+		if ((i+1) % NUM_PER_LINE == 0)			//if the array number is a multiple of 8, we will switch to a new line.
+			cout << endl;
+	}
+
+	if (i % NUM_PER_LINE != 0)				//this makes sure that if the list ends at a value other than 8,
+		cout << endl;					//the list will end and go to the next line to comeplete.
+}
