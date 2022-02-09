@@ -1,0 +1,161 @@
+//************************************************************
+//
+//  merge_sort.cpp
+//  CSCI 241 Assignment 3
+//
+//  Created by Gerald Ellsworth (z1885378)
+//
+//************************************************************
+
+#include <iostream>
+#include <iomanip>
+
+using namespace std;
+
+void print_array(int[], int);
+void merge_sort(int[], int, int);
+int build_array(int[]);
+void merge(int[], int, int, int);
+
+
+#define NUM_WIDTH 8
+#define NUM_PER_LINE 8
+
+int main()
+{
+	int array[1000];
+	int count;
+
+	count = build_array(array);
+	merge_sort(array, 0, count);
+	print_array(array, count);
+
+	return 0;
+}
+
+//**
+//Builds the array based on user input
+//
+//@param array[]: uses the empty array as a base to be filled with the user input.
+//
+//@return: returns the input file given by the user.
+//*********************************************************************************
+
+int build_array(int array[])
+{
+	int count = 0;
+
+	while (cin >> array[count])							//takes the user input as the values for the array.
+	{
+		count++;
+	}
+	return count;
+}
+
+//**
+//Calls the merge_sort function recursively to sort the given array.
+//
+//This function splits the array in half and sorts the first half of array in order
+//and sorts the second half of the array in order and then merges them together.
+//
+//@param array[]: calls the array to be sorted
+//@param start: the starting index of the array.
+//@param end: the end index of the array.
+//***********************************************************************************
+
+void merge_sort(int array[], int start, int end)
+{
+	int mid;
+
+	if (start < end)							//runs the recursive function
+	{
+		mid = (start + end) / 2;					//mid is set to the middle index of the array.
+
+		merge_sort(array, start, mid);					//calls the merge_sort function recursively to sort the first half of the array
+		merge_sort(array, mid + 1, end);				//calls the merge_sort function recursively to sort through the second half of the array.
+
+		merge(array, start, mid, end);					//calls the merge function to give the sorted array.
+	}
+}
+
+//**
+//Calls the merge function to check each of the halves of the array and sort them.
+//
+//Sorts the array by putting the values into a temporary array that check for the smaller
+//value and places them first. It then resubmits the values in the temporary array back into
+//the original array.
+//
+//@param array[]: uses the array given by the user as a base.
+//@param start: the beginning index of the array.
+//@param mid: the partitioning middle index of the array used to cut the array in half.
+//@param end: the last index of the array.
+//***********************************************************************************
+
+void  merge(int array[], int start, int mid, int end)
+{
+	int temp[end + start -1];
+	int i = start;
+	int j = mid + 1;
+	int k = 0;
+
+	while (i <= mid && j <= end)						//loops through the first and second halves of the array
+	{
+		if (array[i] < array[j])					//if the value in [i] is smaller than [j], put it in the temp array and set the first value in the temp array to the value of [i] and increment both.
+		{
+			temp[k] = array[i];
+			i = i + 1;
+		}
+		else
+		{
+			temp[k] = array[j];					//if it is a larger value, put it in the temp array and set the first value in the temp array to the value of [j] and increment both arrays.
+			j = j + 1;
+		}
+		k = k + 1;
+	}
+
+	while (i <= mid)							//while the value of i is less than the value of mid
+	{
+		temp[k] = array[i];						//place the value of i into the temp array and increment both arrays.
+		i = i + 1;
+		k = k + 1;
+	}
+
+	while (j <= end)							//while the value of j is less than the value of end
+	{
+		temp[k] = array[j];						//place the value of j into the temp array and increment both arrays.
+		j = j + 1;
+		k = k + 1;
+	}
+
+	for (i = start; i <= end; i++)						//loop through the temporary array and place elements into array[i]
+	{
+		array[i] = temp[i - start];
+	}
+}
+
+//**
+//Prints the given array values with proper spacing.
+//
+//@param array[]: uses the empty array as a base to be to be filled with the user input.
+//@param count: runs through the array until it is complete to print all values
+//*********************************************************************************
+
+void print_array(int array[], int count)
+{
+	int i;
+
+	for (i = 0; i < count; i++)
+	{
+		cout << setw(NUM_WIDTH) << array[i];				//sets the width of spaces between values to 8.
+
+		if ((i + 1) % NUM_PER_LINE == 0)				//makes sure that there are only 8 values printed per line.
+		{
+			cout << endl;
+		}
+	}
+
+	if (i % NUM_PER_LINE != 0)						//makes sure that the array stops printing and goes to the next line if there are not 8 values left to print.
+	{
+		cout << endl;
+	}
+}
