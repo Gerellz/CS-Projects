@@ -1,0 +1,26 @@
+//****************************************
+//
+//  main.cpp
+//
+//  Assignment 5 CSCI 241
+//
+//  Written by Gerald Ellsworth (z1885378)
+//
+//****************************************
+
+#include "book_store.h"
+
+int main()
+{
+	book_store store;
+
+	store.read_book_data("bookdata");
+
+	store.print();
+
+	store.process_orders("orders.txt");
+
+	store.print();
+
+	return 0;
+}
